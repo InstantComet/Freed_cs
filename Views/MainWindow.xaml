@@ -67,7 +67,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -80,21 +81,27 @@
                             Value="{Binding FreeDData.Pan}" TickFrequency="1"
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Column="2" Text="{Binding FreeDData.Pan, StringFormat=F2}"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center" Margin="5,0"/>
+                    <Button Grid.Column="3" Content="Z" Command="{Binding ResetPanCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
 
                     <Label Grid.Row="1" Content="Tilt:" VerticalAlignment="Center"/>
                     <Slider Grid.Row="1" Grid.Column="1" Minimum="-180" Maximum="180"
                             Value="{Binding FreeDData.Tilt}" TickFrequency="1"
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding FreeDData.Tilt, StringFormat=F2}"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center" Margin="5,0"/>
+                    <Button Grid.Row="1" Grid.Column="3" Content="Z" Command="{Binding ResetTiltCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
 
                     <Label Grid.Row="2" Content="Roll:" VerticalAlignment="Center"/>
                     <Slider Grid.Row="2" Grid.Column="1" Minimum="-180" Maximum="180"
                             Value="{Binding FreeDData.Roll}" TickFrequency="1"
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding FreeDData.Roll, StringFormat=F2}"
-                             VerticalAlignment="Center"/>
+                             VerticalAlignment="Center" Margin="5,0"/>
+                    <Button Grid.Row="2" Grid.Column="3" Content="Z" Command="{Binding ResetRollCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
                 </Grid>
             </GroupBox>
 
@@ -104,9 +111,10 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="70"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="50"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -120,8 +128,10 @@
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Column="2" Text="{Binding FreeDData.PosX, StringFormat=F2}"
                              VerticalAlignment="Center"/>
-                    <Label Grid.Column="3" Content="Max:" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                    <TextBox Grid.Column="4" Text="{Binding MaxPosX, UpdateSourceTrigger=PropertyChanged}"
+                    <Button Grid.Column="3" Content="Z" Command="{Binding ResetPosXCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
+                    <Label Grid.Column="4" Content="Max:" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                    <TextBox Grid.Column="5" Text="{Binding MaxPosX, UpdateSourceTrigger=PropertyChanged}"
                              VerticalAlignment="Center"/>
 
                     <Label Grid.Row="1" Content="Y:" VerticalAlignment="Center"/>
@@ -130,8 +140,10 @@
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding FreeDData.PosY, StringFormat=F2}"
                              VerticalAlignment="Center"/>
-                    <Label Grid.Row="1" Grid.Column="3" Content="Max:" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                    <TextBox Grid.Row="1" Grid.Column="4" Text="{Binding MaxPosY, UpdateSourceTrigger=PropertyChanged}"
+                    <Button Grid.Row="1" Grid.Column="3" Content="Z" Command="{Binding ResetPosYCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
+                    <Label Grid.Row="1" Grid.Column="4" Content="Max:" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                    <TextBox Grid.Row="1" Grid.Column="5" Text="{Binding MaxPosY, UpdateSourceTrigger=PropertyChanged}"
                              VerticalAlignment="Center"/>
 
                     <Label Grid.Row="2" Content="Z:" VerticalAlignment="Center"/>
@@ -140,8 +152,10 @@
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding FreeDData.PosZ, StringFormat=F2}"
                              VerticalAlignment="Center"/>
-                    <Label Grid.Row="2" Grid.Column="3" Content="Max:" VerticalAlignment="Center" Margin="5,0,0,0"/>
-                    <TextBox Grid.Row="2" Grid.Column="4" Text="{Binding MaxPosZ, UpdateSourceTrigger=PropertyChanged}"
+                    <Button Grid.Row="2" Grid.Column="3" Content="Z" Command="{Binding ResetPosZCommand}"
+                            Width="20" Height="20" Margin="5,0"/>
+                    <Label Grid.Row="2" Grid.Column="4" Content="Max:" VerticalAlignment="Center" Margin="0,0,0,0"/>
+                    <TextBox Grid.Row="2" Grid.Column="5" Text="{Binding MaxPosZ, UpdateSourceTrigger=PropertyChanged}"
                              VerticalAlignment="Center"/>
                 </Grid>
             </GroupBox>
@@ -152,7 +166,8 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="60"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

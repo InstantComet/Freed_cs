@@ -94,6 +94,49 @@ namespace FreeDSender.ViewModels
             }
         }
 
+        public ICommand ResetPanCommand { get; }
+        public ICommand ResetTiltCommand { get; }
+        public ICommand ResetRollCommand { get; }
+        public ICommand ResetPosXCommand { get; }
+        public ICommand ResetPosYCommand { get; }
+        public ICommand ResetPosZCommand { get; }
+
+        private void ResetPan()
+        {
+            FreeDData.Pan = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
+        private void ResetTilt()
+        {
+            FreeDData.Tilt = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
+        private void ResetRoll()
+        {
+            FreeDData.Roll = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
+        private void ResetPosX()
+        {
+            FreeDData.PosX = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
+        private void ResetPosY()
+        {
+            FreeDData.PosY = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
+        private void ResetPosZ()
+        {
+            FreeDData.PosZ = 0;
+            OnPropertyChanged(nameof(FreeDData));
+        }
+
         public MainViewModel()
         {
             _udpService = new UdpService();
@@ -102,6 +145,12 @@ namespace FreeDSender.ViewModels
             _freeDData = FreeDData;
             StartCommand = new RelayCommand(Start, CanStart);
             StopCommand = new RelayCommand(Stop, CanStop);
+            ResetPanCommand = new RelayCommand(() => ResetPan());
+            ResetTiltCommand = new RelayCommand(() => ResetTilt());
+            ResetRollCommand = new RelayCommand(() => ResetRoll());
+            ResetPosXCommand = new RelayCommand(() => ResetPosX());
+            ResetPosYCommand = new RelayCommand(() => ResetPosY());
+            ResetPosZCommand = new RelayCommand(() => ResetPosZ());
             Status = "Ready";
             _status = Status;
             PacketData = string.Empty;
