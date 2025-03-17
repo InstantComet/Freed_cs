@@ -19,6 +19,10 @@ namespace FreeDSender.ViewModels
         private double _maxPosY = 10000;
         private double _maxPosZ = 10000;
 
+        public double MinPosX => -MaxPosX;
+        public double MinPosY => -MaxPosY;
+        public double MinPosZ => -MaxPosZ;
+
         private int _frameRate = 50;
         public int FrameRate
         {
@@ -32,15 +36,28 @@ namespace FreeDSender.ViewModels
             }
         }
 
+        private void UpdateFreeDDataMaxPos()
+        {
+            if (_freeDData != null)
+            {
+                _freeDData.MaxPosX = _maxPosX;
+                _freeDData.MaxPosY = _maxPosY;
+                _freeDData.MaxPosZ = _maxPosZ;
+            }
+        }
+
         public double MaxPosX
         {
             get => _maxPosX;
             set
             {
-                if (_maxPosX != value)
+                var newValue = Math.Min(value, 131072);
+                if (_maxPosX != newValue)
                 {
-                    _maxPosX = value;
+                    _maxPosX = newValue;
+                    UpdateFreeDDataMaxPos();
                     OnPropertyChanged(nameof(MaxPosX));
+                    OnPropertyChanged(nameof(MinPosX));
                 }
             }
         }
@@ -50,10 +67,13 @@ namespace FreeDSender.ViewModels
             get => _maxPosY;
             set
             {
-                if (_maxPosY != value)
+                var newValue = Math.Min(value, 131072);
+                if (_maxPosY != newValue)
                 {
-                    _maxPosY = value;
+                    _maxPosY = newValue;
+                    UpdateFreeDDataMaxPos();
                     OnPropertyChanged(nameof(MaxPosY));
+                    OnPropertyChanged(nameof(MinPosY));
                 }
             }
         }
@@ -63,10 +83,13 @@ namespace FreeDSender.ViewModels
             get => _maxPosZ;
             set
             {
-                if (_maxPosZ != value)
+                var newValue = Math.Min(value, 131072);
+                if (_maxPosZ != newValue)
                 {
-                    _maxPosZ = value;
+                    _maxPosZ = newValue;
+                    UpdateFreeDDataMaxPos();
                     OnPropertyChanged(nameof(MaxPosZ));
+                    OnPropertyChanged(nameof(MinPosZ));
                 }
             }
         }
@@ -76,11 +99,15 @@ namespace FreeDSender.ViewModels
             _udpService = new UdpService();
             _udpService.PacketSent += OnPacketSent;
             FreeDData = new FreeDData();
+            _freeDData = FreeDData;
             StartCommand = new RelayCommand(Start, CanStart);
             StopCommand = new RelayCommand(Stop, CanStop);
             Status = "Ready";
-            IpAddress = "10.10.10.21";
-            Port = "4000";
+            _status = Status;
+            PacketData = string.Empty;
+            _packetData = PacketData;
+            IpAddress = "";
+            Port = "";
             FrameRate = 50;
         }
 
@@ -155,7 +182,7 @@ namespace FreeDSender.ViewModels
                 var targetFrameTime = TimeSpan.FromMilliseconds(1000.0 / FrameRate);
                 var nextFrameTime = 0L;
 
-                await Task.Run(() =>
+                await Task.Factory.StartNew(() =>
                 {
                     stopwatch.Start();
                     while (_isRunning)
@@ -178,7 +205,7 @@ namespace FreeDSender.ViewModels
                             System.Threading.SpinWait.SpinUntil(() => stopwatch.ElapsedTicks >= nextFrameTime);
                         }
                     }
-                });
+                }, TaskCreationOptions.LongRunning);
             }
             catch (Exception ex)
             {
@@ -188,39 +215,34 @@ namespace FreeDSender.ViewModels
         }
 
         private void Stop()
-        {
-            _isRunning = false;
+        {            _isRunning = false;
             _udpService.Close();
             Status = "Stopped";
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
     public class RelayCommand : ICommand
-    {
-        private readonly Action _execute;
-        private readonly Func<bool>? _canExecute;
+    {        private readonly Action _execute;
+        private readonly Func<bool> _canExecute;
 
-        public RelayCommand(Action execute, Func<bool>? canExecute = null)
-        {
-            _execute = execute;
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        {            _execute = execute;
             _canExecute = canExecute;
         }
 
-        public event EventHandler? CanExecuteChanged
-        {
-            add { CommandManager.RequerySuggested += value; }
+        public event EventHandler CanExecuteChanged
+        {            add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
         }
 
-        public bool CanExecute(object? parameter) => _canExecute?.Invoke() ?? true;
+        public bool CanExecute(object parameter) => _canExecute?.Invoke() ?? true;
 
-        public void Execute(object? parameter) => _execute();
+        public void Execute(object parameter) => _execute();
     }
 }

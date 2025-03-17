@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Title="Disguise Free-D UDP Sender" Height="800" Width="600"
         WindowStartupLocation="CenterScreen"
-        ResizeMode="CanMinimize">
+        ResizeMode="CanMinimize"
+        Icon="/icon.ico">
     
     <Window.DataContext>
         <viewmodels:MainViewModel/>
@@ -25,7 +26,7 @@
         </Grid.RowDefinitions>
 
         <!-- Connection Settings -->
-        <Grid Grid.Row="0">
+        <Grid Grid.Row="0" Margin="0,10">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
@@ -103,7 +104,7 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="50"/>
+                        <ColumnDefinition Width="80"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="60"/>
                     </Grid.ColumnDefinitions>
@@ -124,7 +125,7 @@
                              VerticalAlignment="Center"/>
 
                     <Label Grid.Row="1" Content="Y:" VerticalAlignment="Center"/>
-                    <Slider Grid.Row="1" Grid.Column="1" Minimum="-131072" Maximum="{Binding MaxPosY}"
+                    <Slider Grid.Row="1" Grid.Column="1" Minimum="{Binding MinPosY}" Maximum="{Binding MaxPosY}"
                             Value="{Binding FreeDData.PosY}" TickFrequency="1"
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="1" Grid.Column="2" Text="{Binding FreeDData.PosY, StringFormat=F2}"
@@ -134,7 +135,7 @@
                              VerticalAlignment="Center"/>
 
                     <Label Grid.Row="2" Content="Z:" VerticalAlignment="Center"/>
-                    <Slider Grid.Row="2" Grid.Column="1" Minimum="-131072" Maximum="{Binding MaxPosZ}"
+                    <Slider Grid.Row="2" Grid.Column="1" Minimum="{Binding MinPosZ}" Maximum="{Binding MaxPosZ}"
                             Value="{Binding FreeDData.PosZ}" TickFrequency="1"
                             IsSnapToTickEnabled="True" Margin="5,0"/>
                     <TextBox Grid.Row="2" Grid.Column="2" Text="{Binding FreeDData.PosZ, StringFormat=F2}"

@@ -7,10 +7,10 @@ namespace FreeDSender.Services
 {
     public class UdpService
     {
-        private UdpClient udpClient;
-        private IPEndPoint endPoint;
+        private UdpClient udpClient = new UdpClient();
+        private IPEndPoint endPoint = new IPEndPoint(IPAddress.Any, 0);
 
-        public event Action<byte[]> PacketSent;
+        public event Action<byte[]> PacketSent = delegate { };
 
         public void Connect(string ipAddress, int port)
         {
@@ -39,7 +39,7 @@ namespace FreeDSender.Services
         public void Close()
         {
             udpClient?.Close();
-            udpClient = null;
+            udpClient = new UdpClient();
         }
 
         private byte[] ConvertToFreeDBytes(FreeDData data)
