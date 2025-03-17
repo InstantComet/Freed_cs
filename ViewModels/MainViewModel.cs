@@ -18,6 +18,63 @@ namespace FreeDSender.ViewModels
         private double _maxPosX = 10000;
         private double _maxPosY = 10000;
         private double _maxPosZ = 10000;
+        private bool _isXAnimationRunning;
+        private bool _isYAnimationRunning;
+        private bool _isZAnimationRunning;
+        private double _animationSpeed = 1.0;
+        private System.Windows.Threading.DispatcherTimer _animationTimer;
+        private double _animationPhaseX;
+        private double _animationPhaseY;
+        private double _animationPhaseZ;
+        private Controls.AnimationCurveControl _animationCurveX;
+        private Controls.AnimationCurveControl _animationCurveY;
+        private Controls.AnimationCurveControl _animationCurveZ;
+        public ICommand StopAllAnimationsCommand { get; private set; }
+
+        public double AnimationSpeed
+        {
+            get => _animationSpeed * 10;
+            set
+            {
+                var newValue = Math.Max(1, Math.Min(10, value));
+                var scaledValue = newValue / 10.0;
+                if (_animationSpeed != scaledValue)
+                {
+                    _animationSpeed = scaledValue;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool IsXAnimationRunning
+        {
+            get => _isXAnimationRunning;
+            private set
+            {
+                _isXAnimationRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsYAnimationRunning
+        {
+            get => _isYAnimationRunning;
+            private set
+            {
+                _isYAnimationRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsZAnimationRunning
+        {
+            get => _isZAnimationRunning;
+            private set
+            {
+                _isZAnimationRunning = value;
+                OnPropertyChanged();
+            }
+        }
 
         public double MinPosX => -MaxPosX;
         public double MinPosY => -MaxPosY;
@@ -98,6 +155,9 @@ namespace FreeDSender.ViewModels
         public ICommand ResetTiltCommand { get; }
         public ICommand ResetRollCommand { get; }
         public ICommand ResetPosXCommand { get; }
+        public ICommand ToggleXAnimationCommand { get; }
+        public ICommand ToggleYAnimationCommand { get; }
+        public ICommand ToggleZAnimationCommand { get; }
         public ICommand ResetPosYCommand { get; }
         public ICommand ResetPosZCommand { get; }
 
@@ -151,6 +211,28 @@ namespace FreeDSender.ViewModels
             ResetPosXCommand = new RelayCommand(() => ResetPosX());
             ResetPosYCommand = new RelayCommand(() => ResetPosY());
             ResetPosZCommand = new RelayCommand(() => ResetPosZ());
+            ToggleXAnimationCommand = new RelayCommand(ToggleXAnimation);
+            ToggleYAnimationCommand = new RelayCommand(ToggleYAnimation);
+            ToggleZAnimationCommand = new RelayCommand(ToggleZAnimation);
+            StopAllAnimationsCommand = new RelayCommand(StopAllAnimations);
+            System.Windows.Application.Current.MainWindow.Loaded += (s, e) =>
+            {
+                _animationCurveX = System.Windows.LogicalTreeHelper
+                    .FindLogicalNode(System.Windows.Application.Current.MainWindow, "AnimationCurveX") 
+                    as Controls.AnimationCurveControl;
+                _animationCurveY = System.Windows.LogicalTreeHelper
+                    .FindLogicalNode(System.Windows.Application.Current.MainWindow, "AnimationCurveY") 
+                    as Controls.AnimationCurveControl;
+                _animationCurveZ = System.Windows.LogicalTreeHelper
+                    .FindLogicalNode(System.Windows.Application.Current.MainWindow, "AnimationCurveZ") 
+                    as Controls.AnimationCurveControl;
+            };
+
+            _animationTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(16)
+            };
+            _animationTimer.Tick += OnAnimationTick;
             Status = "Ready";
             _status = Status;
             PacketData = string.Empty;
@@ -267,6 +349,109 @@ namespace FreeDSender.ViewModels
         {            _isRunning = false;
             _udpService.Close();
             Status = "Stopped";
+        }
+
+        private void StopAllAnimations()
+        {
+            if (IsXAnimationRunning || IsYAnimationRunning || IsZAnimationRunning)
+            {
+                IsXAnimationRunning = false;
+                IsYAnimationRunning = false;
+                IsZAnimationRunning = false;
+                _animationTimer.Stop();
+                _animationPhaseX = 0;
+                _animationPhaseY = 0;
+                _animationPhaseZ = 0;
+            }
+        }
+
+        private void ToggleXAnimation()
+        {
+            if (IsXAnimationRunning)
+            {
+                IsXAnimationRunning = false;
+                if (!IsYAnimationRunning && !IsZAnimationRunning)
+                    _animationTimer.Stop();
+            }
+            else
+            {
+                _animationPhaseX = 0;
+                if (!_animationTimer.IsEnabled)
+                    _animationTimer.Start();
+                IsXAnimationRunning = true;
+            }
+        }
+
+        private void ToggleYAnimation()
+        {
+            if (IsYAnimationRunning)
+            {
+                IsYAnimationRunning = false;
+                if (!IsXAnimationRunning && !IsZAnimationRunning)
+                    _animationTimer.Stop();
+            }
+            else
+            {
+                _animationPhaseY = 0;
+                if (!_animationTimer.IsEnabled)
+                    _animationTimer.Start();
+                IsYAnimationRunning = true;
+            }
+        }
+
+        private void ToggleZAnimation()
+        {
+            if (IsZAnimationRunning)
+            {
+                IsZAnimationRunning = false;
+                if (!IsXAnimationRunning && !IsYAnimationRunning)
+                    _animationTimer.Stop();
+            }
+            else
+            {
+                _animationPhaseZ = 0;
+                if (!_animationTimer.IsEnabled)
+                    _animationTimer.Start();
+                IsZAnimationRunning = true;
+            }
+        }
+
+        private void OnAnimationTick(object sender, EventArgs e)
+        {
+            if (IsXAnimationRunning)
+            {
+                _animationPhaseX += _animationSpeed * 0.02;
+                if (_animationPhaseX > Math.PI * 2)
+                    _animationPhaseX -= Math.PI * 2;
+
+                double normalizedValueX = (Math.Sin(_animationPhaseX) + 1) / 2;
+                FreeDData.PosX = MinPosX + (MaxPosX - MinPosX) * normalizedValueX;
+                _animationCurveX?.AddPoint(normalizedValueX);
+            }
+
+            if (IsYAnimationRunning)
+            {
+                _animationPhaseY += _animationSpeed * 0.02;
+                if (_animationPhaseY > Math.PI * 2)
+                    _animationPhaseY -= Math.PI * 2;
+
+                double normalizedValueY = (Math.Sin(_animationPhaseY) + 1) / 2;
+                FreeDData.PosY = MinPosY + (MaxPosY - MinPosY) * normalizedValueY;
+                _animationCurveY?.AddPoint(normalizedValueY);
+            }
+
+            if (IsZAnimationRunning)
+            {
+                _animationPhaseZ += _animationSpeed * 0.02;
+                if (_animationPhaseZ > Math.PI * 2)
+                    _animationPhaseZ -= Math.PI * 2;
+
+                double normalizedValueZ = (Math.Sin(_animationPhaseZ) + 1) / 2;
+                FreeDData.PosZ = MinPosZ + (MaxPosZ - MinPosZ) * normalizedValueZ;
+                _animationCurveZ?.AddPoint(normalizedValueZ);
+            }
+
+            OnPropertyChanged(nameof(FreeDData));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
