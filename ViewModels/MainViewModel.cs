@@ -215,6 +215,7 @@ namespace FreeDSender.ViewModels
             ToggleYAnimationCommand = new RelayCommand(ToggleYAnimation);
             ToggleZAnimationCommand = new RelayCommand(ToggleZAnimation);
             StopAllAnimationsCommand = new RelayCommand(StopAllAnimations);
+            SetBroadcastCommand = new RelayCommand(SetBroadcast);
             System.Windows.Application.Current.MainWindow.Loaded += (s, e) =>
             {
                 _animationCurveX = System.Windows.LogicalTreeHelper
@@ -279,6 +280,24 @@ namespace FreeDSender.ViewModels
 
         public string IpAddress { get; set; } = "";
         public string Port { get; set; } = "";
+        public ICommand SetBroadcastCommand { get; }
+
+        private void SetBroadcast()
+        {
+            try
+            {
+                var ipParts = IpAddress.Split('.');
+                if (ipParts.Length == 4)
+                {
+                    IpAddress = $"{ipParts[0]}.{ipParts[1]}.{ipParts[2]}.255";
+                    OnPropertyChanged(nameof(IpAddress));
+                }
+            }
+            catch
+            {
+                Status = "Invalid IP address format";
+            }
+        }
 
         public string Status
         {
@@ -305,7 +324,7 @@ namespace FreeDSender.ViewModels
 
                 _udpService.Connect(IpAddress, port);
                 _isRunning = true;
-                Status = $"Sending data to {IpAddress}:{Port}...";
+                Status = $"Sending to {IpAddress}:{Port}...";
 
                 var stopwatch = new System.Diagnostics.Stopwatch();
                 var frameCount = 0;
@@ -324,7 +343,7 @@ namespace FreeDSender.ViewModels
                         var now = DateTime.Now;
                         if ((now - lastFpsUpdate).TotalSeconds >= 1)
                         {
-                            Status = $"Sending data to {IpAddress}:{Port} at {frameCount}fps";
+                            Status = $"Sending to {IpAddress}:{Port} at {frameCount}fps";
                             frameCount = 0;
                             lastFpsUpdate = now;
                         }
@@ -362,6 +381,9 @@ namespace FreeDSender.ViewModels
                 _animationPhaseX = 0;
                 _animationPhaseY = 0;
                 _animationPhaseZ = 0;
+                _animationCurveX?.Clear();
+                _animationCurveY?.Clear();
+                _animationCurveZ?.Clear();
             }
         }
 
@@ -370,12 +392,14 @@ namespace FreeDSender.ViewModels
             if (IsXAnimationRunning)
             {
                 IsXAnimationRunning = false;
+                _animationCurveX?.Clear();
                 if (!IsYAnimationRunning && !IsZAnimationRunning)
                     _animationTimer.Stop();
             }
             else
             {
-                _animationPhaseX = 0;
+                double normalizedValue = (FreeDData.PosX - MinPosX) / (MaxPosX - MinPosX);
+                _animationPhaseX = Math.Asin(normalizedValue * 2 - 1);
                 if (!_animationTimer.IsEnabled)
                     _animationTimer.Start();
                 IsXAnimationRunning = true;
@@ -387,12 +411,14 @@ namespace FreeDSender.ViewModels
             if (IsYAnimationRunning)
             {
                 IsYAnimationRunning = false;
+                _animationCurveY?.Clear();
                 if (!IsXAnimationRunning && !IsZAnimationRunning)
                     _animationTimer.Stop();
             }
             else
             {
-                _animationPhaseY = 0;
+                double normalizedValue = (FreeDData.PosY - MinPosY) / (MaxPosY - MinPosY);
+                _animationPhaseY = Math.Asin(normalizedValue * 2 - 1);
                 if (!_animationTimer.IsEnabled)
                     _animationTimer.Start();
                 IsYAnimationRunning = true;
@@ -404,12 +430,14 @@ namespace FreeDSender.ViewModels
             if (IsZAnimationRunning)
             {
                 IsZAnimationRunning = false;
+                _animationCurveZ?.Clear();
                 if (!IsXAnimationRunning && !IsYAnimationRunning)
                     _animationTimer.Stop();
             }
             else
             {
-                _animationPhaseZ = 0;
+                double normalizedValue = (FreeDData.PosZ - MinPosZ) / (MaxPosZ - MinPosZ);
+                _animationPhaseZ = Math.Asin(normalizedValue * 2 - 1);
                 if (!_animationTimer.IsEnabled)
                     _animationTimer.Start();
                 IsZAnimationRunning = true;

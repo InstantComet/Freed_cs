@@ -13,11 +13,27 @@ namespace FreeDSender.Controls
         private readonly Polyline _curve;
         private readonly int _maxPoints = 100;
 
+        public static readonly DependencyProperty StrokeProperty =
+            DependencyProperty.Register("Stroke", typeof(Brush), typeof(AnimationCurveControl),
+                new PropertyMetadata(Brushes.Blue, OnStrokeChanged));
+
+        public Brush Stroke
+        {
+            get { return (Brush)GetValue(StrokeProperty); }
+            set { SetValue(StrokeProperty, value); }
+        }
+
+        private static void OnStrokeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (AnimationCurveControl)d;
+            control._curve.Stroke = (Brush)e.NewValue;
+        }
+
         public AnimationCurveControl()
         {   
             _curve = new Polyline
             {
-                Stroke = Brushes.Blue,
+                Stroke = Stroke,
                 StrokeThickness = 2
             };
             Children.Add(_curve);
